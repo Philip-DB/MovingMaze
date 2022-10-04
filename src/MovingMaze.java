@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * Main class of the moving maze game
+ * Main class of the moving maze game.
  *
  * @author Philip de Bruyn
  */
