@@ -177,6 +177,25 @@ public class MovingMaze {
                             }
                         }
 
+                        if(input.length() == 3) { // could be a pathfinding call , so enter the if
+                            // CHECK IT IS A VALID INPUT ^
+                            char[] pathFindingCords= input.toCharArray();
+                            int row = Integer.parseInt(String.valueOf(pathFindingCords[2]));
+                            int col = Integer.parseInt(String.valueOf(pathFindingCords[0]));
+                            if (gameState.isValidPath(col,row, myMaze.getMaze()) ) {
+                                gameState.teleportPlayer(col,row, myMaze.getMaze());
+
+                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                    break;
+                                }
+                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                    StdOut.println(gameState.getCurrentTurn().getColorString() + " has won.");
+                                    gameState.endGame();
+                                }
+
+                            }
+                        }
+
                         if (input.equals("quit")) {
                             StdOut.println(" Game has been quit.");
                             gameState.endGame();
