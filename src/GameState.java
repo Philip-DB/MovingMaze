@@ -122,16 +122,21 @@ public class GameState {
         int currentRow = getCurrentTurn().getCurrentRow(); // get the players starting position and pass to function as starting point
         int currentCol = getCurrentTurn().getCurrentCol();
 
+        if( desiredCol >= maze[0].length || desiredRow >= maze.length) {
+            StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
+            return false;
+        }
+
 
 
 
         getReachableTiles(maze,reachable,visited,currentRow,currentCol); // update new reachable array with reachable tiles from current position
 
         if(reachable[desiredRow][desiredCol]) {
-            StdOut.println("Moving to " + desiredRow + "," + desiredCol + ".");
+            StdOut.println(" Moving to " + desiredCol + "," + desiredRow + ".");
             return true;
         } else {
-            StdOut.println("Cannot move to " + desiredRow + "," + desiredCol + ": no path");
+            StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
             return false;
         }
 
