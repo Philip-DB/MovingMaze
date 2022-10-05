@@ -13,9 +13,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 /**
- *  This class provides methods for printing strings and numbers to standard output.
- *  <p>
- *  <b>Getting started.</b>
+ *  <p><b>Overview.</b>
+ *  The {@code StdOut} class provides methods for printing strings and numbers
+ *  to standard output.
+ *
+ *  <p><b>Getting started.</b>
  *  To use this class, you must have {@code StdOut.class} in your
  *  Java classpath. If you used our autoinstaller, you should be all set.
  *  Otherwise, either download
@@ -182,7 +184,7 @@ public final class StdOut {
 
    /**
      * Prints an object to standard output and flushes standard output.
-     * 
+     *
      * @param x the object to print
      */
     public static void print(Object x) {
@@ -192,7 +194,7 @@ public final class StdOut {
 
    /**
      * Prints a boolean to standard output and flushes standard output.
-     * 
+     *
      * @param x the boolean to print
      */
     public static void print(boolean x) {
@@ -202,7 +204,7 @@ public final class StdOut {
 
    /**
      * Prints a character to standard output and flushes standard output.
-     * 
+     *
      * @param x the character to print
      */
     public static void print(char x) {
@@ -212,7 +214,7 @@ public final class StdOut {
 
    /**
      * Prints a double to standard output and flushes standard output.
-     * 
+     *
      * @param x the double to print
      */
     public static void print(double x) {
@@ -222,7 +224,7 @@ public final class StdOut {
 
    /**
      * Prints a float to standard output and flushes standard output.
-     * 
+     *
      * @param x the float to print
      */
     public static void print(float x) {
@@ -232,7 +234,7 @@ public final class StdOut {
 
    /**
      * Prints an integer to standard output and flushes standard output.
-     * 
+     *
      * @param x the integer to print
      */
     public static void print(int x) {
@@ -242,7 +244,7 @@ public final class StdOut {
 
    /**
      * Prints a long integer to standard output and flushes standard output.
-     * 
+     *
      * @param x the long integer to print
      */
     public static void print(long x) {
@@ -252,7 +254,7 @@ public final class StdOut {
 
    /**
      * Prints a short integer to standard output and flushes standard output.
-     * 
+     *
      * @param x the short integer to print
      */
     public static void print(short x) {
