@@ -178,7 +178,7 @@ public class MovingMaze {
                         }
 
                         if(input.length() == 3) { // could be a pathfinding call , so enter the if
-                            // CHECK IT IS A VALID INPUT ^
+                            // CHECK IT IS A VALID INPUT ^ i.e not some wierd string and its in the bounds of the array
                             char[] pathFindingCords= input.toCharArray();
                             int row = Integer.parseInt(String.valueOf(pathFindingCords[2]));
                             int col = Integer.parseInt(String.valueOf(pathFindingCords[0]));
