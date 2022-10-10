@@ -56,6 +56,7 @@ public class MovingMaze {
     /**
      * The main method of MovingMaze.java. This method runs the MovingMaze appliction and takes 2 arguements. The name of the game board text file
      * and the visual mode, either 'text' or 'gui'.
+     *
      * @param args 0: the game board text file name. 1: the visual mode, either 'text' or 'gui'.
      */
     public static void main(String[] args) {
@@ -67,48 +68,49 @@ public class MovingMaze {
         String[] encodedStrings;
         String encodedFloatingTile;
 
-        if (visualMode.equals("text")) { // run game in text mode
 
-            try {
+        try { // create all the needed objects
 
-                File file = new File(fileName); // create a file object for use by the scanner
-                Scanner scanner = new Scanner(file); // create a scanner and read in my gameboard file
-                boardWidth = scanner.nextInt(); // get board width
-                boardHeight = scanner.nextInt();
-                encodedStrings = new String[boardHeight * boardWidth]; // stores all encoded strings for the tile maze, and does not include the floating tile
-                K = scanner.nextInt();
-                encodedFloatingTile = scanner.next();
-                int iCount = 0;
-                while (scanner.hasNext()) {
+            File file = new File(fileName); // create a file object for use by the scanner
+            Scanner scanner = new Scanner(file); // create a scanner and read in my gameboard file
+            boardWidth = scanner.nextInt(); // get board width
+            boardHeight = scanner.nextInt();
+            encodedStrings = new String[boardHeight * boardWidth]; // stores all encoded strings for the tile maze, and does not include the floating tile
+            K = scanner.nextInt();
+            encodedFloatingTile = scanner.next();
+            int iCount = 0;
+            while (scanner.hasNext()) {
 
-                    encodedStrings[iCount] = scanner.next();
-                    iCount++;
+                encodedStrings[iCount] = scanner.next();
+                iCount++;
 
-                }
+            }
 
-                TileMaze myMaze = new TileMaze(boardWidth, boardHeight, encodedStrings); // create TileMaze object
-                Adventurer playerGreen = new Adventurer('G', 1, 1); // create adventurers and initial locations
-                Adventurer playerYellow = new Adventurer('Y', 1, boardWidth);
-                Adventurer playerRed = new Adventurer('R', boardHeight, 1);
-                Adventurer playerBlue = new Adventurer('B', boardHeight, boardWidth);
+            TileMaze myMaze = new TileMaze(boardWidth, boardHeight, encodedStrings); // create TileMaze object
+            Adventurer playerGreen = new Adventurer('G', 1, 1); // create adventurers and initial locations
+            Adventurer playerYellow = new Adventurer('Y', 1, boardWidth);
+            Adventurer playerRed = new Adventurer('R', boardHeight, 1);
+            Adventurer playerBlue = new Adventurer('B', boardHeight, boardWidth);
 
-                myMaze.createAdventurer(playerGreen);
-                myMaze.createAdventurer(playerYellow);
-                myMaze.createAdventurer(playerRed);
-                myMaze.createAdventurer(playerBlue);
+            myMaze.createAdventurer(playerGreen);
+            myMaze.createAdventurer(playerYellow);
+            myMaze.createAdventurer(playerRed);
+            myMaze.createAdventurer(playerBlue);
 
+
+            Tile floatingTile = new Tile(encodedFloatingTile);
+
+
+            GameState gameState = new GameState(playerGreen, playerYellow, playerRed, playerBlue, K); // create a new gameState object
+            Scanner inputReader = new Scanner(System.in); // create a scanner to read input
+
+
+            // start of text mode
+            if (visualMode.equals("text")) {
                 StdOut.println("--------------------------------------------------");
                 StdOut.println("Moving Maze");
                 StdOut.println("Relic goal: " + K);
                 StdOut.println("--------------------------------------------------");
-
-
-                Tile floatingTile = new Tile(encodedFloatingTile);
-
-
-                GameState gameState = new GameState(playerGreen, playerYellow, playerRed, playerBlue, K); // create a new gameState object
-                Scanner inputReader = new Scanner(System.in); // create a scanner to read input
-
                 while (gameState.gameIsRunning) {
                     myMaze.drawTextMaze();
                     floatingTile.drawTile();
@@ -177,13 +179,13 @@ public class MovingMaze {
                             }
                         }
 
-                        if(input.length() == 3) { // could be a pathfinding call , so enter the if
+                        if (input.length() == 3) { // could be a pathfinding call , so enter the if
                             // CHECK IT IS A VALID INPUT ^ i.e not some wierd string and its in the bounds of the array
-                            char[] pathFindingCords= input.toCharArray();
+                            char[] pathFindingCords = input.toCharArray();
                             int row = Integer.parseInt(String.valueOf(pathFindingCords[2]));
                             int col = Integer.parseInt(String.valueOf(pathFindingCords[0]));
-                            if (gameState.isValidPath(col,row, myMaze.getMaze()) ) {
-                                gameState.teleportPlayer(col,row, myMaze.getMaze());
+                            if (gameState.isValidPath(col, row, myMaze.getMaze())) {
+                                gameState.teleportPlayer(col, row, myMaze.getMaze());
 
                                 if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
                                     break;
@@ -213,31 +215,33 @@ public class MovingMaze {
 
                 }
 
+            } // end of text mode
 
-            } catch (FileNotFoundException e) {
-                StdOut.println("The game board file does not exist.");
+            if (visualMode.equals("gui")) { // run game in gui mode
+
+                GUI UI = new GUI(new GameState(null, null, null, null, 10), myMaze.getMaze());
+                StdOut.println("Playing in GUI Mode");
+                UI.drawMaze();
+
+            }
+
+            if (!visualMode.equals("text") && !visualMode.equals("gui")) {
+                StdOut.println("Unknown visual mode.");
                 System.exit(0);
             }
 
-
-        } // end of text mode code
-
-        if (visualMode.equals("gui")) { // run game in gui mode
-
-        }
-
-        if (!visualMode.equals("text") && !visualMode.equals("gui")) {
-            StdOut.println("Unknown visual mode.");
+        } catch (FileNotFoundException e) {
+            StdOut.println("The game board file does not exist.");
             System.exit(0);
         }
-
 
     }
 
     /**
      * A static function to check whether a valid slide can be performed by sliding the {@code floatingTile} into the position indicated by {@code slidingIndicator}. If it can, return {@code true} and if not, return {@code false}.
+     *
      * @param slidingIndicator a {@code String} that indicates the position to slide the floating tile into the maze.
-     * @param floatingTile a {@code String} that is 6 characters long and holds information to create the floatingTile
+     * @param floatingTile     a {@code String} that is 6 characters long and holds information to create the floatingTile
      * @return {@code true} if the slide can be formed.
      */
     public static boolean isValidSlide(String slidingIndicator, Tile floatingTile) {
@@ -415,9 +419,9 @@ public class MovingMaze {
      * This character represents the relic on the new floating tile — if it has a relic (regardless of its collection order number), return its lowercase
      * initial; if it has no relic, return ‘x’.
      *
-     * @param mazeTileEncodings a 2D array of {@code String} that encode each tile's information.
+     * @param mazeTileEncodings    a 2D array of {@code String} that encode each tile's information.
      * @param floatingTileEncoding a {@code String} that encodes the floating tile's information.
-     * @param slidingIndicator a {@code String} that indicates the position to slide the floating tile into the maze.
+     * @param slidingIndicator     a {@code String} that indicates the position to slide the floating tile into the maze.
      * @return a Java character representing the color of the relic or 'x' if no relic is present.
      */
     public static char slideTileIntoMaze2(String[][] mazeTileEncodings, String floatingTileEncoding, String slidingIndicator) {
