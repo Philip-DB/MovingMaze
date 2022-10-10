@@ -115,6 +115,94 @@ public class GameState {
     }
 
 
+    public boolean isValidPath(int desiredCol,int desiredRow,Tile[][] maze) { // function that determines if there is a path from adventurers current position to the desired tile
+        boolean[][] reachable = new boolean[maze.length][maze[0].length]; // create new 2d array ( will all indices start as false ) to hold reachable tiles from current position
+        boolean[][] visited = new boolean[maze.length][maze[0].length]; // array to hold positions already visited ( so that recursion does not go in circles )
+
+        int currentRow = getCurrentTurn().getCurrentRow(); // get the players starting position and pass to function as starting point
+        int currentCol = getCurrentTurn().getCurrentCol();
+
+        if( desiredCol >= maze[0].length || desiredRow >= maze.length) {
+            StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
+            return false;
+        }
+
+
+
+
+        getReachableTiles(maze,reachable,visited,currentRow,currentCol); // update new reachable array with reachable tiles from current position
+
+        if(reachable[desiredRow][desiredCol]) {
+            StdOut.println(" Moving to " + desiredCol + "," + desiredRow + ".");
+            return true;
+        } else {
+            StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
+            return false;
+        }
+
+
+    }
+
+    public void getReachableTiles(Tile[][] maze, boolean[][] reachable,boolean[][] visited,int currentRow,int currentCol) { // a recursive function that modifies the given 2d boolean array to represent which tiles are accessible from the current tile
+        int numRows = maze.length;
+        int numCols = maze[0].length; // this is to make code easier to read, we also need 2 vars as the maze is not always square.
+        // update all reachable sites from players position recursively
+
+
+
+        if (visited[currentRow][currentCol]) {
+
+            return; // if we have already been to this tile, return
+        }
+        // now we know we aren't out of bounds and haven't been to this tile before, now we can check adjacent tiles recursively
+
+        visited[currentRow][currentCol] = true;
+        reachable[currentRow][currentCol] = true;
+
+        if(currentRow != 1) {
+            if (maze[currentRow - 1][currentCol].isOpenToSide('s') && maze[currentRow][currentCol].isOpenToSide('n') ) { // check above
+
+                getReachableTiles(maze, reachable, visited, currentRow - 1, currentCol);
+            }
+        }
+        if(currentRow != numRows-1) {
+            if (maze[currentRow + 1][currentCol].isOpenToSide('n') && maze[currentRow][currentCol].isOpenToSide('s')) { // below
+
+                getReachableTiles(maze, reachable, visited, currentRow + 1, currentCol);
+            }
+        }
+
+        if(currentCol != numCols-1) {
+            if (maze[currentRow][currentCol + 1].isOpenToSide('w') && maze[currentRow][currentCol].isOpenToSide('e')) { // right
+
+                getReachableTiles(maze, reachable, visited, currentRow, currentCol + 1);
+            }
+        }
+
+        if(currentCol != 1) {
+            if (maze[currentRow][currentCol - 1].isOpenToSide('e') && maze[currentRow][currentCol].isOpenToSide('w')) { // left
+
+                getReachableTiles(maze, reachable, visited, currentRow, currentCol - 1);
+            }
+        }
+
+
+    }
+
+    public void teleportPlayer(int desiredCol,int desiredRow,Tile[][] maze) {
+        int currentRow = getCurrentTurn().getCurrentRow(); // get the players current position
+        int currentCol = getCurrentTurn().getCurrentCol();
+
+        maze[desiredRow][desiredCol].setAdventurers(getCurrentTurn()); // put adventurer on new tile
+        maze[currentRow][currentCol].removeAdventurer(getCurrentTurn()); // remove from old tile
+
+        getCurrentTurn().setCurrentRow(desiredRow);
+        getCurrentTurn().setCurrentCol(desiredCol);
+
+
+    }
+
+
     /**
      * This function moves the player to the new tile without printing anything to the terminal. Its main use is for API testing
      *
