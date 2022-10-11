@@ -219,7 +219,7 @@ public class MovingMaze {
 
             if (visualMode.equals("gui")) { // run game in gui mode
 
-                GUI UI = new GUI(new GameState(null, null, null, null, 10), myMaze.getMaze());
+                GUI UI = new GUI(gameState, myMaze.getMaze(),floatingTile);
                 StdOut.println("Playing in GUI Mode");
                 UI.drawMaze();
 

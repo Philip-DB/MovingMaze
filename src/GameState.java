@@ -12,6 +12,7 @@ public class GameState {
     private int currentTurnIndex;
     private int K;
     boolean gameIsRunning;
+    boolean isMoving;
 
     /**
      * A Constructor that is used to create the gameState object and initializes all players , the starting turn and the number of relics to collect
@@ -29,7 +30,20 @@ public class GameState {
         adventurers[3] = d;
         currentTurnIndex = 0;
         K = numRelic;
+        isMoving = false;
         gameIsRunning = true;
+    }
+
+    public void startMoving() {
+        isMoving = true;
+    }
+
+    public void stopMoving() {
+        isMoving = false;
+    }
+
+    public boolean isMoving() {
+        return isMoving;
     }
 
     /**
@@ -568,6 +582,11 @@ public class GameState {
         StdOut.println("- Blue   " + adventurers[3].getNumRelicCollected());
 
     }
+
+    public Adventurer[] getAdventurers() {
+        return adventurers;
+    }
+
 
     /**
      * An instance method that checks if any adventurers is in a winning position and state ( meaning they have collected all relics )
