@@ -270,12 +270,48 @@ public class MovingMaze {
 
                         }
 
+                        if (StdDraw.isKeyPressed(81)) { // w is pressed, so check if we can move north
+
+                            System.exit(0);
+
+                        }
+
 
                     }
 
                     while(true) { // moving phase
                         UI.drawMaze();
 
+                        // pathfinder
+
+                        UI.drawPathfinderSquare(StdDraw.mouseX(),StdDraw.mouseY());
+                        if (StdDraw.isMousePressed()) {
+
+                            double xMouse = StdDraw.mouseX(); // get co-ordinates of the mouse
+                            double yMouse = StdDraw.mouseY();
+
+                            if(UI.canDraw(xMouse,yMouse)) {
+                                if (UI.canMove(xMouse, yMouse)) {
+
+                                    gameState.teleportPlayer(UI.getPosition(xMouse, yMouse).getCol(), UI.getPosition(xMouse, yMouse).getRow(), myMaze.getMaze());
+                                    if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                        UI.drawMaze();
+                                        gameState.stopMoving();
+                                        break;
+                                    }
+
+                                    if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                        UI.drawEndScreen();
+                                    }
+                                }
+                            }
+                            UI.drawMaze();
+                            Thread.sleep(200);
+
+                        }
+
+
+                        // end of pathfinder
                         if (StdDraw.isKeyPressed(87)) { // w is pressed, so check if we can move north
 
                              if(gameState.isValidPlayerMove('n', myMaze.getMaze()) ) {
@@ -388,6 +424,12 @@ public class MovingMaze {
 
                             Thread.sleep(200);
                             break;
+
+                        }
+
+                        if (StdDraw.isKeyPressed(81)) { // w is pressed, so check if we can move north
+
+                            System.exit(0);
 
                         }
 

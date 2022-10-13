@@ -11,6 +11,8 @@ public class GUI {
 
     private Tile[][] maze;
 
+    private Position[][] positions;
+
     private Tile floatingTile;
     private GameState gameState;
     private double tileLength;
@@ -30,6 +32,7 @@ public class GUI {
         numRows = (double) maze.length - 1;
         numCols = (double) maze[0].length - 1;
 
+        positions = new Position[maze.length][maze[0].length]; // create array that will hold positions of the tiles in it
         int numEvenRows = (maze.length - 1) / 2;
         int numEvenCols = (maze[0].length - 1) / 2;
 
@@ -113,7 +116,9 @@ public class GUI {
 
     private void drawTiles() {
 
-    slidingCounter =0;
+        slidingCounter = 0;
+
+
         for (int iRow = 1; iRow < maze.length; iRow++) { // before drawing the maze, make sure all text representations are up-to-date
 
             for (int iCol = 1; iCol < maze[0].length; iCol++) {
@@ -140,7 +145,9 @@ public class GUI {
 
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
-                drawSlidePoint(iRow, iCol, xCord, yCord);
+
+                drawSlidePoint(iRow, iCol, xCord, yCord); // used for GUI functionality
+                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
 
                 xCord = xCord + tileLength;
             }
@@ -155,6 +162,7 @@ public class GUI {
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
                 drawSlidePoint(iRow, iCol, xCord, yCord);
+                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
 
                 xCord = xCord - tileLength;
             }
@@ -173,6 +181,7 @@ public class GUI {
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
                 drawSlidePoint(iRow, iCol, xCord, yCord);
+                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
 
                 xCord = xCord + tileLength;
             }
@@ -186,6 +195,7 @@ public class GUI {
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
                 drawSlidePoint(iRow, iCol, xCord, yCord);
+                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
 
                 xCord = xCord - tileLength;
             }
@@ -208,7 +218,7 @@ public class GUI {
         if (iRow == 1) { // if we are in the top row  ( we draw a slidePoint above each even col )
 
             if (iCol % 2 == 0) {
-                slidingPoints[slidingCounter++] = new SlidingPoint(iRow, iCol, xCord, yCord + tileLength, "n" +iCol);
+                slidingPoints[slidingCounter++] = new SlidingPoint(iRow, iCol, xCord, yCord + tileLength, "n" + iCol);
                 StdDraw.filledCircle(xCord, yCord + tileLength, tileLength / 10);
 
             }
@@ -245,6 +255,92 @@ public class GUI {
 
     }
 
+    public boolean canDraw(double xMouse,double yMouse) {
+
+        double halflength = tileLength / 2;
+        for(int iRow = 1;iRow < positions.length;iRow++) {
+
+            for (int iCol =1 ;iCol< positions[0].length;iCol++) {
+
+                if (xMouse <= positions[iRow][iCol].getxCord() + halflength && xMouse >= positions[iRow][iCol].getxCord() - halflength) { // if x is inside of circle
+
+                    if (yMouse <= positions[iRow][iCol].getyCord() + halflength && yMouse >= positions[iRow][iCol].getyCord() - halflength) { // if x is inside of circle
+
+                        return true;
+
+                    }
+
+                }
+
+
+            }
+
+        }
+        return  false;
+
+    }
+
+    public Position getPosition( double xMouse,double yMouse) {
+
+        double halflength = tileLength / 2;
+        for(int iRow = 1;iRow < positions.length;iRow++) {
+
+            for (int iCol =1 ;iCol< positions[0].length;iCol++) {
+
+                if (xMouse <= positions[iRow][iCol].getxCord() + halflength && xMouse >= positions[iRow][iCol].getxCord() - halflength) { // if x is inside of circle
+
+                    if (yMouse <= positions[iRow][iCol].getyCord() + halflength && yMouse >= positions[iRow][iCol].getyCord() - halflength) { // if x is inside of circle
+
+                        return positions[iRow][iCol];
+
+                    }
+
+                }
+
+
+            }
+
+        }
+        return null;
+
+    }
+
+    public void drawPathfinderSquare(double xMouse,double yMouse) {
+
+        if(xMouse <= 50.00 && xMouse >= -50.00) { // check we are actually inside the maze
+
+            if(yMouse >= -50.00 && yMouse <= 50.00) {
+
+                if(canDraw(xMouse, yMouse)) { // if are on a tile , see if we can get there
+
+                   if( canMove(xMouse, yMouse) ) {
+
+                       StdDraw.setPenColor(StdDraw.GREEN);
+                       StdDraw.square(getPosition(xMouse, yMouse).getxCord(),getPosition(xMouse, yMouse).getyCord(),tileLength/2);
+                   } else {
+                       StdDraw.setPenColor(StdDraw.RED);
+                       StdDraw.square(getPosition(xMouse, yMouse).getxCord(),getPosition(xMouse, yMouse).getyCord(),tileLength/2);
+                   }
+
+
+                }
+
+            }
+
+        }
+        StdDraw.show();
+
+    }
+
+    public boolean canMove(double xMouse, double yMouse) {
+        if(gameState.isValidPath(getPosition(xMouse, yMouse).getCol(),getPosition(xMouse, yMouse).getRow(),maze )) {
+            // if there is a valid path to the currently highlighted postion, draw a green square
+           return true;
+        } else {
+           return false;
+        }
+    }
+
 
     public boolean wasSlidingPointPressed(double mouseX, double mouseY) {
         double radius = tileLength / 10;
@@ -266,12 +362,12 @@ public class GUI {
 
     }
 
-    public SlidingPoint getPoint(double x,double y) {
+    public SlidingPoint getPoint(double x, double y) {
 
         double radius = tileLength / 10;
         for (int i = 0; i < slidingPoints.length; i++) {
 
-            if (x <= slidingPoints[i].getxCord() + radius && x>= slidingPoints[i].getxCord() - radius) { // if x is inside of circle
+            if (x <= slidingPoints[i].getxCord() + radius && x >= slidingPoints[i].getxCord() - radius) { // if x is inside of circle
 
                 if (y <= slidingPoints[i].getyCord() + radius && y >= slidingPoints[i].getyCord() - radius) { // if x is inside of circle
 
@@ -431,11 +527,11 @@ public class GUI {
                 break;
         }
         StdDraw.setPenRadius();
-        StdDraw.setPenRadius(10);
-        StdDraw.text(0.0,50.00,gameState.getCurrentTurn().getColorString() + " has won!");
-        StdDraw.text(0.0,00.00,"Please press Enter to close this screen");
+        StdDraw.setPenRadius(1);
+        StdDraw.text(0.0, 50.00, gameState.getCurrentTurn().getColorString() + " has won!");
+        StdDraw.text(0.0, 00.00, "Please press Enter to close this screen");
         StdDraw.show();
-        while(true) {
+        while (true) {
             if (StdDraw.isKeyPressed(10)) { // wait for user to press enter
                 System.exit(0);
             }
