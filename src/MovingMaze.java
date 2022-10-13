@@ -4,6 +4,7 @@
  * Student number: 25968548
  */
 
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -219,9 +220,182 @@ public class MovingMaze {
 
             if (visualMode.equals("gui")) { // run game in gui mode
 
-                GUI UI = new GUI(gameState, myMaze.getMaze(),floatingTile);
-                StdOut.println("Playing in GUI Mode");
+                GUI UI = new GUI(gameState, myMaze.getMaze(), floatingTile);
                 UI.drawMaze();
+
+                while (gameState.gameIsRunning) { // GUI game loop begins
+
+                    while (true) { // loop for sliding and rotating
+
+                        UI.drawMaze();
+                        if (StdDraw.isKeyPressed(39)) { // if right arrow is pressed, rotate floating tile clockwise
+
+                            floatingTile.setDirections(floatingTile.rotateTileClockwise());
+                            UI.drawMaze();
+                            StdOut.println("Pressed right");
+                            Thread.sleep(200);
+
+                        }
+
+                        if (StdDraw.isKeyPressed(37)) { // if left arrow is pressed, rotate floating tile anti-clockwise
+
+                            floatingTile.setDirections(floatingTile.rotateTileCounterClockwise());
+                            UI.drawMaze();
+                            StdOut.println("Pressed left");
+                            Thread.sleep(200);
+
+                        }
+
+                        if (StdDraw.isMousePressed()) {
+
+                            double xMouse = StdDraw.mouseX(); // get co-ordinates of the mouse
+                            double yMouse = StdDraw.mouseY();
+
+
+
+                            if (UI.wasSlidingPointPressed(xMouse,yMouse)) {
+
+                                if(isValidSlide(UI.getPoint(xMouse,yMouse).getSlidingDirection(),floatingTile)) {
+
+                                    floatingTile =  myMaze.slideIntoMaze(UI.getPoint(xMouse,yMouse).getSlidingDirection(),floatingTile);
+                                    gameState.wrapAroundRelicCollection(myMaze.getMaze(), myMaze, floatingTile);
+                                    UI.setFloatingTile(floatingTile);
+                                    UI.drawMaze();
+                                    gameState.startMoving();
+                                    break;
+                                }
+
+                            }
+                            Thread.sleep(200);
+
+                        }
+
+
+                    }
+
+                    while(true) { // moving phase
+                        UI.drawMaze();
+
+                        if (StdDraw.isKeyPressed(87)) { // w is pressed, so check if we can move north
+
+                             if(gameState.isValidPlayerMove('n', myMaze.getMaze()) ) {
+
+                                 gameState.movePlayerNoText('n', myMaze.getMaze());
+
+                                 if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                     UI.drawMaze();
+                                     gameState.stopMoving();
+                                     break;
+                                 }
+
+                                 if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                     UI.drawEndScreen();
+                                 }
+
+                             }
+
+
+                            UI.drawMaze();
+
+                            Thread.sleep(200);
+
+                        }
+
+                        if (StdDraw.isKeyPressed(83)) { // w is pressed, so check if we can move north
+
+                            if(gameState.isValidPlayerMove('s', myMaze.getMaze()) ) {
+
+                                gameState.movePlayerNoText('s', myMaze.getMaze());
+
+                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                    UI.drawMaze();
+                                    gameState.stopMoving();
+                                    break;
+                                }
+
+                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                    UI.drawEndScreen();
+                                }
+
+                            }
+
+
+                            UI.drawMaze();
+
+                            Thread.sleep(200);
+
+                        }
+
+                        if (StdDraw.isKeyPressed(68)) { // w is pressed, so check if we can move north
+
+                            if(gameState.isValidPlayerMove('e', myMaze.getMaze()) ) {
+
+                                gameState.movePlayerNoText('e', myMaze.getMaze());
+
+                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                    UI.drawMaze();
+                                    gameState.stopMoving();
+                                    break;
+                                }
+
+                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                    UI.drawMaze();
+                                }
+
+                            }
+
+
+                            UI.drawMaze();
+
+                            Thread.sleep(200);
+
+
+                        }
+
+                        if (StdDraw.isKeyPressed(65)) { // w is pressed, so check if we can move north
+
+                            if(gameState.isValidPlayerMove('w', myMaze.getMaze()) ) {
+
+                                gameState.movePlayerNoText('w', myMaze.getMaze());
+
+                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                    UI.drawMaze();
+                                    gameState.stopMoving();
+                                    break;
+                                }
+
+                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                    UI.drawEndScreen();
+
+                                }
+
+                            }
+
+
+                            UI.drawMaze();
+
+                            Thread.sleep(200);
+
+
+                        }
+
+                        if (StdDraw.isKeyPressed(10)) { // w is pressed, so check if we can move north
+
+                            gameState.nextTurn();
+                            gameState.stopMoving();
+
+                            UI.drawMaze();
+
+                            Thread.sleep(200);
+                            break;
+
+                        }
+
+
+                    }
+
+
+                }
 
             }
 
@@ -233,6 +407,8 @@ public class MovingMaze {
         } catch (FileNotFoundException e) {
             StdOut.println("The game board file does not exist.");
             System.exit(0);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
     }

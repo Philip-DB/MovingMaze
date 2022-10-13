@@ -17,7 +17,11 @@ public class GUI {
     private double numRows;
     private double numCols;
 
-    public GUI(GameState gameState, Tile[][] maze,Tile floatingTile) {
+    private int slidingCounter;
+
+    private SlidingPoint[] slidingPoints; // array of slidingPoint objects
+
+    public GUI(GameState gameState, Tile[][] maze, Tile floatingTile) {
         this.maze = maze;
         this.gameState = gameState;
         this.floatingTile = floatingTile;
@@ -26,6 +30,11 @@ public class GUI {
         numRows = (double) maze.length - 1;
         numCols = (double) maze[0].length - 1;
 
+        int numEvenRows = (maze.length - 1) / 2;
+        int numEvenCols = (maze[0].length - 1) / 2;
+
+        slidingPoints = new SlidingPoint[2 * numEvenRows + 2 * numEvenCols]; // make an array of number of even rows and cols for sliding points
+        slidingCounter = 0;
 
         if (numRows <= numCols) { // if rows < cols, use rows to determine tile length and a vice versa
             tileLength = 100 / numCols;
@@ -40,6 +49,13 @@ public class GUI {
 
     }
 
+    public SlidingPoint[] getSlidingPoints() { // returns array of slidingPoints that can be used to check if a slide should occur
+        return slidingPoints;
+    }
+
+    public int getSlidingCounter() {
+        return slidingCounter;
+    }
 
     public void drawMaze() { // draws current maze
 
@@ -97,6 +113,7 @@ public class GUI {
 
     private void drawTiles() {
 
+    slidingCounter =0;
         for (int iRow = 1; iRow < maze.length; iRow++) { // before drawing the maze, make sure all text representations are up-to-date
 
             for (int iCol = 1; iCol < maze[0].length; iCol++) {
@@ -106,6 +123,7 @@ public class GUI {
             }
 
         }
+        floatingTile.updateTile();
 
         int middleRow = (int) (Math.ceil(numRows / 2));
         int middleCol = (int) (Math.ceil(numCols / 2)); // get the middle ( where we start printing )
@@ -122,6 +140,7 @@ public class GUI {
 
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
+                drawSlidePoint(iRow, iCol, xCord, yCord);
 
                 xCord = xCord + tileLength;
             }
@@ -135,6 +154,7 @@ public class GUI {
 
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
+                drawSlidePoint(iRow, iCol, xCord, yCord);
 
                 xCord = xCord - tileLength;
             }
@@ -152,6 +172,7 @@ public class GUI {
 
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
+                drawSlidePoint(iRow, iCol, xCord, yCord);
 
                 xCord = xCord + tileLength;
             }
@@ -164,6 +185,7 @@ public class GUI {
 
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
+                drawSlidePoint(iRow, iCol, xCord, yCord);
 
                 xCord = xCord - tileLength;
             }
@@ -171,14 +193,97 @@ public class GUI {
         }
 
         xCord = -80.00;
-        yCord = 0;
+        yCord = -60.00;
 
         StdDraw.setPenColor(128, 0, 0);
-        StdDraw.filledSquare(xCord,yCord,tileLength/2);
+        StdDraw.filledSquare(xCord, yCord, tileLength / 2);
 
-        drawCurrentTile(xCord,yCord,floatingTile);
+        drawCurrentTile(xCord, yCord, floatingTile);
         StdDraw.setPenColor(StdDraw.WHITE);
-        StdDraw.square(xCord,yCord,tileLength/2);
+        StdDraw.square(xCord, yCord, tileLength / 2);
+    }
+
+    private void drawSlidePoint(int iRow, int iCol, double xCord, double yCord) { // draws the slidepoint and stores it in a 2d array
+        StdDraw.setPenColor(StdDraw.LIGHT_GRAY);
+        if (iRow == 1) { // if we are in the top row  ( we draw a slidePoint above each even col )
+
+            if (iCol % 2 == 0) {
+                slidingPoints[slidingCounter++] = new SlidingPoint(iRow, iCol, xCord, yCord + tileLength, "n" +iCol);
+                StdDraw.filledCircle(xCord, yCord + tileLength, tileLength / 10);
+
+            }
+
+
+        }
+
+        if (iRow == maze.length - 1) { // if we are in the bottom row, we draw slidePoints below each even col
+            if (iCol % 2 == 0) {
+                slidingPoints[slidingCounter++] = new SlidingPoint(iRow, iCol, xCord, yCord - tileLength, "s" + iCol);
+                StdDraw.filledCircle(xCord, yCord - tileLength, tileLength / 10);
+            }
+
+
+        }
+
+        if (iCol == 1) { // if we are in the left most column
+
+            if (iRow % 2 == 0) {
+                slidingPoints[slidingCounter++] = new SlidingPoint(iRow, iCol, xCord - tileLength, yCord, "w" + iRow);
+                StdDraw.filledCircle(xCord - tileLength, yCord, tileLength / 10);
+            }
+
+        }
+
+        if (iCol == maze[0].length - 1) { // if we are in the right most column
+
+            if (iRow % 2 == 0) {
+                slidingPoints[slidingCounter++] = new SlidingPoint(iRow, iCol, xCord + tileLength, yCord, "e" + iRow);
+                StdDraw.filledCircle(xCord + tileLength, yCord, tileLength / 10);
+            }
+
+        }
+
+    }
+
+
+    public boolean wasSlidingPointPressed(double mouseX, double mouseY) {
+        double radius = tileLength / 10;
+        for (int i = 0; i < slidingPoints.length; i++) {
+
+            if (mouseX <= slidingPoints[i].getxCord() + radius && mouseX >= slidingPoints[i].getxCord() - radius) { // if x is inside of circle
+
+                if (mouseY <= slidingPoints[i].getyCord() + radius && mouseY >= slidingPoints[i].getyCord() - radius) { // if x is inside of circle
+
+                    return true;
+
+                }
+
+            }
+
+
+        }
+        return false;
+
+    }
+
+    public SlidingPoint getPoint(double x,double y) {
+
+        double radius = tileLength / 10;
+        for (int i = 0; i < slidingPoints.length; i++) {
+
+            if (x <= slidingPoints[i].getxCord() + radius && x>= slidingPoints[i].getxCord() - radius) { // if x is inside of circle
+
+                if (y <= slidingPoints[i].getyCord() + radius && y >= slidingPoints[i].getyCord() - radius) { // if x is inside of circle
+
+                    return slidingPoints[i];
+
+                }
+
+            }
+
+
+        }
+        return null;
     }
 
     private void drawCurrentTile(double xCord, double yCord, Tile tile) {
@@ -214,21 +319,21 @@ public class GUI {
                     case 'G':
 
                         StdDraw.setPenColor(StdDraw.GREEN);
-                        StdDraw.filledCircle(xCord,yCord,1.5*block);
+                        StdDraw.filledCircle(xCord, yCord, 1.5 * block);
                         break;
                     case 'Y':
 
                         StdDraw.setPenColor(StdDraw.YELLOW);
-                        StdDraw.filledCircle(xCord,yCord,1.5*block);
+                        StdDraw.filledCircle(xCord, yCord, 1.5 * block);
                         break;
                     case 'R':
 
                         StdDraw.setPenColor(StdDraw.RED);
-                        StdDraw.filledCircle(xCord,yCord,1.5*block);
+                        StdDraw.filledCircle(xCord, yCord, 1.5 * block);
                         break;
                     case 'B':
                         StdDraw.setPenColor(StdDraw.BLUE);
-                        StdDraw.filledCircle(xCord,yCord,1.5*block);
+                        StdDraw.filledCircle(xCord, yCord, 1.5 * block);
                         break;
                 }
 
@@ -242,22 +347,22 @@ public class GUI {
                 switch (tile.getRelic().getColor()) {
                     case 'g': {
                         StdDraw.setPenColor(StdDraw.GREEN);
-                        StdDraw.filledSquare(xCord,yCord,block);
+                        StdDraw.filledSquare(xCord, yCord, block);
                         break;
                     }
                     case 'b': {
                         StdDraw.setPenColor(StdDraw.BLUE);
-                        StdDraw.filledSquare(xCord,yCord,block);
+                        StdDraw.filledSquare(xCord, yCord, block);
                         break;
                     }
                     case 'r': {
                         StdDraw.setPenColor(StdDraw.RED);
-                        StdDraw.filledSquare(xCord,yCord,block);
+                        StdDraw.filledSquare(xCord, yCord, block);
                         break;
                     }
                     case 'y': {
                         StdDraw.setPenColor(StdDraw.YELLOW);
-                        StdDraw.filledSquare(xCord,yCord,block);
+                        StdDraw.filledSquare(xCord, yCord, block);
                         break;
                     }
                 }
@@ -266,7 +371,81 @@ public class GUI {
 
         }
 
+        for (int i = 0; i < 4; i++) {
+            if (adventurers[i] != null) {
 
+                if (gameState.getCurrentTurn() == adventurers[i]) {
+
+                    switch (adventurers[i].getColor()) { // place adventurer on tile if there is one
+
+                        case 'G':
+
+                            StdDraw.setPenColor(StdDraw.GREEN);
+                            StdDraw.filledCircle(xCord, yCord, 1.5 * block);
+                            break;
+                        case 'Y':
+
+                            StdDraw.setPenColor(StdDraw.YELLOW);
+                            StdDraw.filledCircle(xCord, yCord, 1.5 * block);
+                            break;
+                        case 'R':
+
+                            StdDraw.setPenColor(StdDraw.RED);
+                            StdDraw.filledCircle(xCord, yCord, 1.5 * block);
+                            break;
+                        case 'B':
+                            StdDraw.setPenColor(StdDraw.BLUE);
+                            StdDraw.filledCircle(xCord, yCord, 1.5 * block);
+                            break;
+                    }
+
+
+                }
+
+            }
+        }
+
+
+    }
+
+    public void drawEndScreen() {
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.filledRectangle(0, 0, 100, 100);
+
+        switch (gameState.getCurrentTurn().getColor()) { // place adventurer on tile if there is one
+
+            case 'G':
+
+                StdDraw.setPenColor(StdDraw.GREEN);
+                break;
+            case 'Y':
+
+                StdDraw.setPenColor(StdDraw.YELLOW);
+                break;
+            case 'R':
+
+                StdDraw.setPenColor(StdDraw.RED);
+                break;
+            case 'B':
+                StdDraw.setPenColor(StdDraw.BLUE);
+                break;
+        }
+        StdDraw.setPenRadius();
+        StdDraw.setPenRadius(10);
+        StdDraw.text(0.0,50.00,gameState.getCurrentTurn().getColorString() + " has won!");
+        StdDraw.text(0.0,00.00,"Please press Enter to close this screen");
+        StdDraw.show();
+        while(true) {
+            if (StdDraw.isKeyPressed(10)) { // wait for user to press enter
+                System.exit(0);
+            }
+        }
+
+
+    }
+
+    public void setFloatingTile(Tile floatingTile) {
+        this.floatingTile = floatingTile;
     }
 
     public static void main(String[] args) {
