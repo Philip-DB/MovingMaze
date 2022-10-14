@@ -509,6 +509,11 @@ public class MovingMaze {
         return true;
     }
 
+    /**
+     * Used to determine if the sliding input is valid
+     * @param input a String of length 2 that should contain the direction and row/column to slide the floating tile into.
+     * @return true of the input is valid
+     */
     public static boolean isValidSlidingString(String input) {
 
         if (input == null) {
@@ -548,6 +553,11 @@ public class MovingMaze {
 
     }
 
+    /**
+     * Used to determine if the moving input is valid
+     * @param input a String of length 1 that should contain the direction the player wishes to move in.
+     * @return true of the input is valid
+     */
     public static boolean isValidMoveInput(String input) {
         if(input == null) {
             return false;
@@ -564,6 +574,11 @@ public class MovingMaze {
         }
     }
 
+    /**
+     * Used to determine if the pathfinding input is valid
+     * @param input a String of length 3 that should contain the co-ordinates of the point to teleport to seperated by a comma
+     * @return true of the input is valid
+     */
     public static boolean isValidTeleportMove(String input) {
         if(input == null) {
             return false;
