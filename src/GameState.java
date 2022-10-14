@@ -34,14 +34,24 @@ public class GameState {
         gameIsRunning = true;
     }
 
+    /**
+     * Marks the isMoving boolean variables as true
+     */
     public void startMoving() {
         isMoving = true;
     }
 
+    /**
+     * Marks the isMoving boolean variables as false
+     */
     public void stopMoving() {
         isMoving = false;
     }
 
+    /**
+     * returns whether the players are currently moving or not
+     * @return true of the players are moving or false if they are busy sliding.
+     */
     public boolean isMoving() {
         return isMoving;
     }
@@ -77,6 +87,8 @@ public class GameState {
 
         int currentRow = getCurrentTurn().getCurrentRow(); // get the row and column adventurer is in
         int currentCol = getCurrentTurn().getCurrentCol();
+
+
 
         switch (dir) {
             case 'n': {
@@ -128,7 +140,13 @@ public class GameState {
 
     }
 
-
+    /**
+     * An instance method used to determine if there is a valid path from the current players position to the desired position provided as input
+     * @param desiredCol desired column that the player wishes to move to
+     * @param desiredRow desired row that the player wishes to move to
+     * @param maze A {@code Tile} 2D array that represents the maze of tiles.
+     * @return {@code true} if the player can move to that position and false otherwise.
+     */
     public boolean isValidPath(int desiredCol,int desiredRow,Tile[][] maze) { // function that determines if there is a path from adventurers current position to the desired tile
         boolean[][] reachable = new boolean[maze.length][maze[0].length]; // create new 2d array ( will all indices start as false ) to hold reachable tiles from current position
         boolean[][] visited = new boolean[maze.length][maze[0].length]; // array to hold positions already visited ( so that recursion does not go in circles )
@@ -137,7 +155,7 @@ public class GameState {
         int currentCol = getCurrentTurn().getCurrentCol();
 
         if( desiredCol >= maze[0].length || desiredRow >= maze.length) {
-            StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
+           // StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
             return false;
         }
 
@@ -147,16 +165,25 @@ public class GameState {
         getReachableTiles(maze,reachable,visited,currentRow,currentCol); // update new reachable array with reachable tiles from current position
 
         if(reachable[desiredRow][desiredCol]) {
-            StdOut.println(" Moving to " + desiredCol + "," + desiredRow + ".");
+            //StdOut.println(" Moving to " + desiredCol + "," + desiredRow + ".");
             return true;
         } else {
-            StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
+            //StdOut.println(" Cannot move to " + desiredCol + "," + desiredRow + ": no path.");
             return false;
         }
 
 
     }
 
+
+    /**
+     * Auxillary method used by #isValidPath to determine which tiles are reachable from the current players position
+     * @param maze A {@code Tile} 2D array that represents the maze of tiles.
+     * @param reachable A 2D boolean array that will hold the reachable tiles indices.
+     * @param visited A 2D boolean array that will hold the tiles already visited by the recursive function.
+     * @param currentRow current row that the player is in.
+     * @param currentCol current column the player is in.
+     */
     public void getReachableTiles(Tile[][] maze, boolean[][] reachable,boolean[][] visited,int currentRow,int currentCol) { // a recursive function that modifies the given 2d boolean array to represent which tiles are accessible from the current tile
         int numRows = maze.length;
         int numCols = maze[0].length; // this is to make code easier to read, we also need 2 vars as the maze is not always square.
@@ -203,9 +230,20 @@ public class GameState {
 
     }
 
+    /**
+     * Teleports player directly the desired column and row in the maze.
+     * @param desiredCol the desired column to teleport player to.
+     * @param desiredRow the desired row to teleport player to.
+     * @param maze A {@code Tile} 2D array that represents the maze of tiles.
+     */
+
     public void teleportPlayer(int desiredCol,int desiredRow,Tile[][] maze) {
         int currentRow = getCurrentTurn().getCurrentRow(); // get the players current position
         int currentCol = getCurrentTurn().getCurrentCol();
+
+        if(currentCol == desiredCol && currentRow == desiredRow) {
+            return;
+        }
 
         maze[desiredRow][desiredCol].setAdventurers(getCurrentTurn()); // put adventurer on new tile
         maze[currentRow][currentCol].removeAdventurer(getCurrentTurn()); // remove from old tile
@@ -583,6 +621,10 @@ public class GameState {
 
     }
 
+    /**
+     * An accessor method that returns the array of adventurers playing the game.
+     * @return a reference to a 1D {@code Adventurer} array.
+     */
     public Adventurer[] getAdventurers() {
         return adventurers;
     }

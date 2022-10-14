@@ -1,9 +1,5 @@
-
-import java.awt.*;
-
-
 /**
- * Class that handles the creation and updating of the GUI using the {@code Java Swing} library.
+ * Class that handles the creation and updating of the GUI using the {@code StdDraw} library.
  *
  * @author Philip de Bruyn
  */
@@ -19,10 +15,17 @@ public class GUI {
     private double numRows;
     private double numCols;
 
-    private int slidingCounter;
+    private int slidingCounter; // keeps track of how many sliding points there are in the slidingPoints array ( also used to enter slidingPoint objects into the array itself as a simple loop could not be imployed
 
     private SlidingPoint[] slidingPoints; // array of slidingPoint objects
 
+    /**
+     * Constructor for the GUI object. It sets up the scaling and canvas size of the GUI as well as instantiating important variables needed for drawing objects.
+     *
+     * @param gameState    a gameState object that contains vital methods and variables for GUI information.
+     * @param maze         A 2D tile array that represents the maze.
+     * @param floatingTile a tile that represents the current floating tile.
+     */
     public GUI(GameState gameState, Tile[][] maze, Tile floatingTile) {
         this.maze = maze;
         this.gameState = gameState;
@@ -52,14 +55,9 @@ public class GUI {
 
     }
 
-    public SlidingPoint[] getSlidingPoints() { // returns array of slidingPoints that can be used to check if a slide should occur
-        return slidingPoints;
-    }
-
-    public int getSlidingCounter() {
-        return slidingCounter;
-    }
-
+    /**
+     * Void method that draws the current maze, title and scoreboard onto the GUI window
+     */
     public void drawMaze() { // draws current maze
 
         drawTitle();
@@ -70,6 +68,9 @@ public class GUI {
 
     }
 
+    /**
+     * Void method that draws the current title onto the GUI window.
+     */
     private void drawTitle() {
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.filledRectangle(0, 0, 100, 100); // clear background and draw title on top
@@ -100,6 +101,9 @@ public class GUI {
 
     }
 
+    /**
+     * Void method that draws the scoreboard onto the GUI window.
+     */
     private void drawScoreboard() {
         StdDraw.setPenColor(StdDraw.GREEN);
         StdDraw.text(-50.00, -85.00, "Green : " + "\t" + gameState.getAdventurers()[0].getNumRelicCollected());
@@ -114,6 +118,9 @@ public class GUI {
         StdDraw.text(50.00, -95.00, "Blue : " + "\t" + gameState.getAdventurers()[3].getNumRelicCollected());
     }
 
+    /**
+     * Void method that draws the maze onto the GUI window
+     */
     private void drawTiles() {
 
         slidingCounter = 0;
@@ -147,7 +154,7 @@ public class GUI {
                 StdDraw.square(xCord, yCord, tileLength / 2);
 
                 drawSlidePoint(iRow, iCol, xCord, yCord); // used for GUI functionality
-                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
+                positions[iRow][iCol] = new Position(xCord, yCord, iRow, iCol);
 
                 xCord = xCord + tileLength;
             }
@@ -162,7 +169,7 @@ public class GUI {
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
                 drawSlidePoint(iRow, iCol, xCord, yCord);
-                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
+                positions[iRow][iCol] = new Position(xCord, yCord, iRow, iCol);
 
                 xCord = xCord - tileLength;
             }
@@ -181,7 +188,7 @@ public class GUI {
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
                 drawSlidePoint(iRow, iCol, xCord, yCord);
-                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
+                positions[iRow][iCol] = new Position(xCord, yCord, iRow, iCol);
 
                 xCord = xCord + tileLength;
             }
@@ -195,7 +202,7 @@ public class GUI {
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(xCord, yCord, tileLength / 2);
                 drawSlidePoint(iRow, iCol, xCord, yCord);
-                positions[iRow][iCol] = new Position(xCord,yCord,iRow,iCol);
+                positions[iRow][iCol] = new Position(xCord, yCord, iRow, iCol);
 
                 xCord = xCord - tileLength;
             }
@@ -213,6 +220,13 @@ public class GUI {
         StdDraw.square(xCord, yCord, tileLength / 2);
     }
 
+    /**
+     * Void method that draws the slidePoint corresponding to the given Row, Column and x,y co-ordinate.
+     * @param iRow row of the slidingPoint
+     * @param iCol column of the slidingPoint
+     * @param xCord x-Coordinate of the tile that the slidingPoint must be drawn near.
+     * @param yCord y-Coordinate of the tile that the slidingPoint must be drawn near.
+     */
     private void drawSlidePoint(int iRow, int iCol, double xCord, double yCord) { // draws the slidepoint and stores it in a 2d array
         StdDraw.setPenColor(StdDraw.LIGHT_GRAY);
         if (iRow == 1) { // if we are in the top row  ( we draw a slidePoint above each even col )
@@ -255,12 +269,18 @@ public class GUI {
 
     }
 
-    public boolean canDraw(double xMouse,double yMouse) {
+    /**
+     * Method that determines whether the mouse cursor is inside the Maze section of the GUI and should draw a pathfinder square around a tile.
+     * @param xMouse x-Coordinate of the mouse cursor
+     * @param yMouse y-Coordinate of the mouse cursor
+     * @return true if the mouse cursor is inside the maze section of the GUI
+     */
+    public boolean canDraw(double xMouse, double yMouse) {
 
         double halflength = tileLength / 2;
-        for(int iRow = 1;iRow < positions.length;iRow++) {
+        for (int iRow = 1; iRow < positions.length; iRow++) {
 
-            for (int iCol =1 ;iCol< positions[0].length;iCol++) {
+            for (int iCol = 1; iCol < positions[0].length; iCol++) {
 
                 if (xMouse <= positions[iRow][iCol].getxCord() + halflength && xMouse >= positions[iRow][iCol].getxCord() - halflength) { // if x is inside of circle
 
@@ -276,16 +296,22 @@ public class GUI {
             }
 
         }
-        return  false;
+        return false;
 
     }
 
-    public Position getPosition( double xMouse,double yMouse) {
+    /**
+     * Returns the position of the tile that is currently being hovered over by the mouse
+     * @param xMouse x-Coordinate of the mouse cursor
+     * @param yMouse y-Coordinate of the mouse cursor
+     * @return a position object if mouse is hovering over a tile and null otherwise.
+     */
+    public Position getPosition(double xMouse, double yMouse) {
 
         double halflength = tileLength / 2;
-        for(int iRow = 1;iRow < positions.length;iRow++) {
+        for (int iRow = 1; iRow < positions.length; iRow++) {
 
-            for (int iCol =1 ;iCol< positions[0].length;iCol++) {
+            for (int iCol = 1; iCol < positions[0].length; iCol++) {
 
                 if (xMouse <= positions[iRow][iCol].getxCord() + halflength && xMouse >= positions[iRow][iCol].getxCord() - halflength) { // if x is inside of circle
 
@@ -305,22 +331,27 @@ public class GUI {
 
     }
 
-    public void drawPathfinderSquare(double xMouse,double yMouse) {
+    /**
+     * Void method that draws the green pathfinder square on the currently selected tile if the player can move there and a red square if they cannot move there.
+     * @param xMouse x-Coordinate of the mouse cursor
+     * @param yMouse y-Coordinate of the mouse cursor
+     */
+    public void drawPathfinderSquare(double xMouse, double yMouse) {
 
-        if(xMouse <= 50.00 && xMouse >= -50.00) { // check we are actually inside the maze
+        if (xMouse <= 50.00 && xMouse >= -50.00) { // check we are actually inside the maze
 
-            if(yMouse >= -50.00 && yMouse <= 50.00) {
+            if (yMouse >= -50.00 && yMouse <= 50.00) {
 
-                if(canDraw(xMouse, yMouse)) { // if are on a tile , see if we can get there
+                if (canDraw(xMouse, yMouse)) { // if are on a tile , see if we can get there
 
-                   if( canMove(xMouse, yMouse) ) {
+                    if (canMove(xMouse, yMouse)) {
 
-                       StdDraw.setPenColor(StdDraw.GREEN);
-                       StdDraw.square(getPosition(xMouse, yMouse).getxCord(),getPosition(xMouse, yMouse).getyCord(),tileLength/2);
-                   } else {
-                       StdDraw.setPenColor(StdDraw.RED);
-                       StdDraw.square(getPosition(xMouse, yMouse).getxCord(),getPosition(xMouse, yMouse).getyCord(),tileLength/2);
-                   }
+                        StdDraw.setPenColor(StdDraw.GREEN);
+                        StdDraw.square(getPosition(xMouse, yMouse).getxCord(), getPosition(xMouse, yMouse).getyCord(), tileLength / 2);
+                    } else {
+                        StdDraw.setPenColor(StdDraw.RED);
+                        StdDraw.square(getPosition(xMouse, yMouse).getxCord(), getPosition(xMouse, yMouse).getyCord(), tileLength / 2);
+                    }
 
 
                 }
@@ -332,16 +363,27 @@ public class GUI {
 
     }
 
+    /**
+     * Method that determines whether the current player can move to the tile specified by the x and y coordinate of the current mouse position.
+     * @param xMouse x-Coordinate of the mouse cursor
+     * @param yMouse y-Coordinate of the mouse cursor
+     * @return true if the player can move to tile currently being hovered on by the mouse cursor
+     */
     public boolean canMove(double xMouse, double yMouse) {
-        if(gameState.isValidPath(getPosition(xMouse, yMouse).getCol(),getPosition(xMouse, yMouse).getRow(),maze )) {
+        if (gameState.isValidPath(getPosition(xMouse, yMouse).getCol(), getPosition(xMouse, yMouse).getRow(), maze)) {
             // if there is a valid path to the currently highlighted postion, draw a green square
-           return true;
+            return true;
         } else {
-           return false;
+            return false;
         }
     }
 
-
+    /**
+     * Determines whether a slidingPoint was pressed on the GUI window.
+     * @param mouseX x-Coordinate of the mouse cursor
+     * @param mouseY y-Coordinate of the mouse cursor
+     * @return true if a slidingPoint was pressed.
+     */
     public boolean wasSlidingPointPressed(double mouseX, double mouseY) {
         double radius = tileLength / 10;
         for (int i = 0; i < slidingPoints.length; i++) {
@@ -362,6 +404,12 @@ public class GUI {
 
     }
 
+    /**
+     * Returns the slidingPoint that was pressed. It is used in conjunction with #wasSlidingPointPressed.
+     * @param x x-Coordinate of the mouse cursor
+     * @param y y-Coordinate of the mouse cursor
+     * @return the slidingPoint object from the slidingPoints array that was pressed by the user.
+      */
     public SlidingPoint getPoint(double x, double y) {
 
         double radius = tileLength / 10;
@@ -382,6 +430,12 @@ public class GUI {
         return null;
     }
 
+    /**
+     * Void method that draws the current tile at the given x,y coordinate based on the Tile object's information given as a parameter.
+     * @param xCord
+     * @param yCord
+     * @param tile
+     */
     private void drawCurrentTile(double xCord, double yCord, Tile tile) {
         double block = tileLength / 10; // divide tile into grid if 10 squares ( first block centered at xCord, yCord)
         boolean[] directions = tile.getDirections();
@@ -504,6 +558,9 @@ public class GUI {
 
     }
 
+    /**
+     * Void method that prints the end-screen once a player has won the game.
+     */
     public void drawEndScreen() {
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.filledRectangle(0, 0, 100, 100);
@@ -540,13 +597,12 @@ public class GUI {
 
     }
 
+    /**
+     * Setter method that is used to update the new floating tile as a result of rotating or sliding.
+     * @param floatingTile the new floating tile.
+     */
     public void setFloatingTile(Tile floatingTile) {
         this.floatingTile = floatingTile;
     }
-
-    public static void main(String[] args) {
-
-    }
-
 
 }

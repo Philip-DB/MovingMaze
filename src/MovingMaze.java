@@ -120,32 +120,19 @@ public class MovingMaze {
                         StdOut.print(">");
                         String input = inputReader.next();
 
-                        if (input.equals("r")) {
 
-                            floatingTile.setDirections(floatingTile.rotateTileClockwise());
-                            StdOut.println(" Rotating right.");
-                            myMaze.drawTextMaze();
-                            floatingTile.drawTile();
-
-
-                        }
-                        if (input.equals("l")) {
-
-                            floatingTile.setDirections(floatingTile.rotateTileCounterClockwise());
-                            StdOut.println(" Rotating left.");
-                            myMaze.drawTextMaze();
-                            floatingTile.drawTile();
-
-
-                        }
                         if (input.length() == 2) {
-                            if (isValidSlide(input, floatingTile)) {
-                                StdOut.println(" Inserting at " + input + ".");
-                                floatingTile = myMaze.slideIntoMaze(input, floatingTile);
-                                gameState.wrapAroundRelicCollection(myMaze.getMaze(), myMaze, floatingTile);
-                                myMaze.drawTextMaze();
-                                floatingTile.drawTile();
-                                break;
+                            if (isValidSlidingString(input)) {
+                                if (isValidSlide(input, floatingTile)) {
+                                    StdOut.println(" Inserting at " + input + ".");
+                                    floatingTile = myMaze.slideIntoMaze(input, floatingTile);
+                                    gameState.wrapAroundRelicCollection(myMaze.getMaze(), myMaze, floatingTile);
+                                    myMaze.drawTextMaze();
+                                    floatingTile.drawTile();
+                                    break;
+                                }
+                            } else {
+                                StdOut.println("Invalid input.");
                             }
 
                         }
@@ -155,6 +142,35 @@ public class MovingMaze {
                             gameState.endGame();
 
                         }
+
+                        if (input.length() > 2) {
+                            StdOut.println("Invalid input.");
+                        }
+                        if(input.length() == 1) {
+                            switch (input) {
+                                case "r": {
+                                    floatingTile.setDirections(floatingTile.rotateTileClockwise());
+                                    StdOut.println(" Rotating right.");
+                                    myMaze.drawTextMaze();
+                                    floatingTile.drawTile();
+                                    break;
+                                }
+
+                                case "l": {
+                                    floatingTile.setDirections(floatingTile.rotateTileCounterClockwise());
+                                    StdOut.println(" Rotating left.");
+                                    myMaze.drawTextMaze();
+                                    floatingTile.drawTile();
+                                    break;
+                                }
+
+                                default:
+                                    StdOut.println("Invalid input.");
+
+                            }
+                        }
+
+
                     }
                     // player has now rotated and slid the tile in, now we check if any relic collections must be triggered
 
@@ -165,37 +181,49 @@ public class MovingMaze {
                         StdOut.print(">");
                         String input = inputReader.next();
 
+
+
                         if (input.length() == 1) {
+                            if(isValidMoveInput(input)) {
 
-                            if (gameState.isValidPlayerMove(input.charAt(0), myMaze.getMaze())) {
-                                gameState.movePlayer(input.charAt(0), myMaze.getMaze());
-                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
-                                    break;
-                                }
-                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
-                                    StdOut.println(gameState.getCurrentTurn().getColorString() + " has won.");
-                                    gameState.endGame();
-                                }
+                                if (gameState.isValidPlayerMove(input.charAt(0), myMaze.getMaze())) {
+                                    gameState.movePlayer(input.charAt(0), myMaze.getMaze());
+                                    if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                        break;
+                                    }
+                                    if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                        StdOut.println(gameState.getCurrentTurn().getColorString() + " has won.");
+                                        gameState.endGame();
+                                    }
 
+                                }
+                            } else {
+                                StdOut.println("Invalid input.");
                             }
                         }
 
-                        if (input.length() == 3) { // could be a pathfinding call , so enter the if
-                            // CHECK IT IS A VALID INPUT ^ i.e not some wierd string and its in the bounds of the array
-                            char[] pathFindingCords = input.toCharArray();
-                            int row = Integer.parseInt(String.valueOf(pathFindingCords[2]));
-                            int col = Integer.parseInt(String.valueOf(pathFindingCords[0]));
-                            if (gameState.isValidPath(col, row, myMaze.getMaze())) {
-                                gameState.teleportPlayer(col, row, myMaze.getMaze());
+                        if (input.length() == 3) {
+                            if(isValidTeleportMove(input)) {
+                                char[] pathFindingCords = input.toCharArray();
+                                int row = Integer.parseInt(String.valueOf(pathFindingCords[2]));
+                                int col = Integer.parseInt(String.valueOf(pathFindingCords[0]));
+                                if (gameState.isValidPath(col, row, myMaze.getMaze())) { // we can teleport
+                                    gameState.teleportPlayer(col, row, myMaze.getMaze());
+                                    StdOut.println(" Moving to " + col + "," + row + ".");
 
-                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
-                                    break;
-                                }
-                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
-                                    StdOut.println(gameState.getCurrentTurn().getColorString() + " has won.");
-                                    gameState.endGame();
-                                }
+                                    if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                        break;
+                                    }
+                                    if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                        StdOut.println(gameState.getCurrentTurn().getColorString() + " has won.");
+                                        gameState.endGame();
+                                    }
 
+                                } else {
+                                    StdOut.println(" Cannot move to " + col + "," + row + ": no path.");
+                                }
+                            } else {
+                                StdOut.println("Invalid input.");
                             }
                         }
 
@@ -209,6 +237,10 @@ public class MovingMaze {
                             StdOut.print(" ");
                             gameState.nextTurn();
                             break;
+                        }
+
+                        if (input.length() != 3 && input.length() != 1) {
+                            StdOut.println("Invalid input.");
                         }
 
                     }
@@ -252,12 +284,11 @@ public class MovingMaze {
                             double yMouse = StdDraw.mouseY();
 
 
+                            if (UI.wasSlidingPointPressed(xMouse, yMouse)) {
 
-                            if (UI.wasSlidingPointPressed(xMouse,yMouse)) {
+                                if (isValidSlide(UI.getPoint(xMouse, yMouse).getSlidingDirection(), floatingTile)) {
 
-                                if(isValidSlide(UI.getPoint(xMouse,yMouse).getSlidingDirection(),floatingTile)) {
-
-                                    floatingTile =  myMaze.slideIntoMaze(UI.getPoint(xMouse,yMouse).getSlidingDirection(),floatingTile);
+                                    floatingTile = myMaze.slideIntoMaze(UI.getPoint(xMouse, yMouse).getSlidingDirection(), floatingTile);
                                     gameState.wrapAroundRelicCollection(myMaze.getMaze(), myMaze, floatingTile);
                                     UI.setFloatingTile(floatingTile);
                                     UI.drawMaze();
@@ -279,18 +310,18 @@ public class MovingMaze {
 
                     }
 
-                    while(true) { // moving phase
+                    while (true) { // moving phase
                         UI.drawMaze();
 
                         // pathfinder
 
-                        UI.drawPathfinderSquare(StdDraw.mouseX(),StdDraw.mouseY());
+                        UI.drawPathfinderSquare(StdDraw.mouseX(), StdDraw.mouseY());
                         if (StdDraw.isMousePressed()) {
 
                             double xMouse = StdDraw.mouseX(); // get co-ordinates of the mouse
                             double yMouse = StdDraw.mouseY();
 
-                            if(UI.canDraw(xMouse,yMouse)) {
+                            if (UI.canDraw(xMouse, yMouse)) {
                                 if (UI.canMove(xMouse, yMouse)) {
 
                                     gameState.teleportPlayer(UI.getPosition(xMouse, yMouse).getCol(), UI.getPosition(xMouse, yMouse).getRow(), myMaze.getMaze());
@@ -314,21 +345,21 @@ public class MovingMaze {
                         // end of pathfinder
                         if (StdDraw.isKeyPressed(87)) { // w is pressed, so check if we can move north
 
-                             if(gameState.isValidPlayerMove('n', myMaze.getMaze()) ) {
+                            if (gameState.isValidPlayerMove('n', myMaze.getMaze())) {
 
-                                 gameState.movePlayerNoText('n', myMaze.getMaze());
+                                gameState.movePlayerNoText('n', myMaze.getMaze());
 
-                                 if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
-                                     UI.drawMaze();
-                                     gameState.stopMoving();
-                                     break;
-                                 }
+                                if (gameState.movementRelicCollection(myMaze.getMaze(), myMaze, floatingTile)) {
+                                    UI.drawMaze();
+                                    gameState.stopMoving();
+                                    break;
+                                }
 
-                                 if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
-                                     UI.drawEndScreen();
-                                 }
+                                if (gameState.ifWon()) { // if the player moved and is in a winning position, we end game
+                                    UI.drawEndScreen();
+                                }
 
-                             }
+                            }
 
 
                             UI.drawMaze();
@@ -339,7 +370,7 @@ public class MovingMaze {
 
                         if (StdDraw.isKeyPressed(83)) { // w is pressed, so check if we can move north
 
-                            if(gameState.isValidPlayerMove('s', myMaze.getMaze()) ) {
+                            if (gameState.isValidPlayerMove('s', myMaze.getMaze())) {
 
                                 gameState.movePlayerNoText('s', myMaze.getMaze());
 
@@ -364,7 +395,7 @@ public class MovingMaze {
 
                         if (StdDraw.isKeyPressed(68)) { // w is pressed, so check if we can move north
 
-                            if(gameState.isValidPlayerMove('e', myMaze.getMaze()) ) {
+                            if (gameState.isValidPlayerMove('e', myMaze.getMaze())) {
 
                                 gameState.movePlayerNoText('e', myMaze.getMaze());
 
@@ -390,7 +421,7 @@ public class MovingMaze {
 
                         if (StdDraw.isKeyPressed(65)) { // w is pressed, so check if we can move north
 
-                            if(gameState.isValidPlayerMove('w', myMaze.getMaze()) ) {
+                            if (gameState.isValidPlayerMove('w', myMaze.getMaze())) {
 
                                 gameState.movePlayerNoText('w', myMaze.getMaze());
 
@@ -476,6 +507,108 @@ public class MovingMaze {
         }
 
         return true;
+    }
+
+    public static boolean isValidSlidingString(String input) {
+
+        if (input == null) {
+            return false;
+        } else {
+            char[] info = input.toCharArray();
+
+            if (info[0] == 'n' || info[0] == 'e' || info[0] == 's' || info[0] == 'w') { // if first part of sliding string is a valid direction continue
+                switch (info[1]) {
+                    case '0':
+                        return true;
+                    case '1':
+                        return true;
+                    case '2':
+                        return true;
+                    case '3':
+                        return true;
+                    case '4':
+                        return true;
+                    case '5':
+                        return true;
+                    case '6':
+                        return true;
+                    case '7':
+                        return true;
+                    case '8':
+                        return true;
+                    case '9':
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            return false;
+
+        }
+
+    }
+
+    public static boolean isValidMoveInput(String input) {
+        if(input == null) {
+            return false;
+        } else {
+
+            switch(input) {
+                case "n" : return true;
+                case "s" : return true;
+                case "e" : return true;
+                case "w" : return true;
+                default: return false;
+            }
+
+        }
+    }
+
+    public static boolean isValidTeleportMove(String input) {
+        if(input == null) {
+            return false;
+
+        } else {
+            char[] info = input.toCharArray();
+
+            if (info[1] == ',') {
+
+                if (info[0] == '0' || info[0] == '1' || info[0] == '2' || info[0] == '3' || info[0] == '4' || info[0] == '5' || info[0] == '6' || info[0] == '7' || info[0] == '8' || info[0] == '9' ) {
+                    // if the first part of string is a digit, check the last one
+
+                    switch (info[2]) {
+                        case '0':
+                            return true;
+                        case '1':
+                            return true;
+                        case '2':
+                            return true;
+                        case '3':
+                            return true;
+                        case '4':
+                            return true;
+                        case '5':
+                            return true;
+                        case '6':
+                            return true;
+                        case '7':
+                            return true;
+                        case '8':
+                            return true;
+                        case '9':
+                            return true;
+                        default:
+                            return false;
+                    }
+
+                } else {
+                    return false;
+                }
+
+            } else {
+                return false;
+            }
+        }
     }
     // ==========================================================
     // Test API functions
